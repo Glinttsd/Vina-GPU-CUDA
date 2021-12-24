@@ -339,25 +339,25 @@ void monte_carlo::operator()(model& m, output_container& out, const precalculate
 			ig_cl_ptr->grids[i].m_j = tmp_grids[i].m_data.dim1(); assert(MAX_NUM_OF_GRID_MJ >= ig_cl_ptr->grids[i].m_j);
 			ig_cl_ptr->grids[i].m_k = tmp_grids[i].m_data.dim2(); assert(MAX_NUM_OF_GRID_MK >= ig_cl_ptr->grids[i].m_k);
 
-			for (int j = 0; j < ig_cl_ptr->grids[i].m_i * ig_cl_ptr->grids[i].m_j * ig_cl_ptr->grids[i].m_k; j++) {
-				ig_cl_ptr->grids[i].m_data[j] = tmp_grids[i].m_data.m_data[j];
-			}
-			//int m_i = tmp_grids[i].m_data.dim0();
-			//int m_j = tmp_grids[i].m_data.dim1();
-			//int m_k = tmp_grids[i].m_data.dim2();
-			//for(sz idx0 = 0; idx0 < m_i - 1; idx0++)
-			//	for(sz idx1 = 0; idx1 < m_j - 1; idx1++)
-			//		for (sz idx2 = 0; idx2 < m_k - 1; idx2++) {
-			//			int base = (idx0 + m_i * (idx1 + m_j * idx2))*8;
-			//			ig_cl_ptr->grids[i].m_data[base] = tmp_grids[i].m_data(idx0, idx1, idx2); // f000
-			//			ig_cl_ptr->grids[i].m_data[base + 1] = tmp_grids[i].m_data(idx0+1, idx1, idx2); // f100
-			//			ig_cl_ptr->grids[i].m_data[base + 2] = tmp_grids[i].m_data(idx0, idx1+1, idx2); // f010
-			//			ig_cl_ptr->grids[i].m_data[base + 3] = tmp_grids[i].m_data(idx0+1, idx1+1, idx2); // f110
-			//			ig_cl_ptr->grids[i].m_data[base + 4] = tmp_grids[i].m_data(idx0, idx1, idx2+1); // f001
-			//			ig_cl_ptr->grids[i].m_data[base + 5] = tmp_grids[i].m_data(idx0+1, idx1, idx2+1); // f101
-			//			ig_cl_ptr->grids[i].m_data[base + 6] = tmp_grids[i].m_data(idx0, idx1+1, idx2+1); // f011
-			//			ig_cl_ptr->grids[i].m_data[base + 7] = tmp_grids[i].m_data(idx0+1, idx1+1, idx2+1); // f111
-			//		}
+			//for (int j = 0; j < ig_cl_ptr->grids[i].m_i * ig_cl_ptr->grids[i].m_j * ig_cl_ptr->grids[i].m_k; j++) {
+			//	ig_cl_ptr->grids[i].m_data[j] = tmp_grids[i].m_data.m_data[j];
+			//}
+			int m_i = tmp_grids[i].m_data.dim0();
+			int m_j = tmp_grids[i].m_data.dim1();
+			int m_k = tmp_grids[i].m_data.dim2();
+			for(sz idx0 = 0; idx0 < m_i - 1; idx0++)
+				for(sz idx1 = 0; idx1 < m_j - 1; idx1++)
+					for (sz idx2 = 0; idx2 < m_k - 1; idx2++) {
+						int base = (idx0 + m_i * (idx1 + m_j * idx2))*8;
+						ig_cl_ptr->grids[i].m_data[base] = tmp_grids[i].m_data(idx0, idx1, idx2); // f000
+						ig_cl_ptr->grids[i].m_data[base + 1] = tmp_grids[i].m_data(idx0+1, idx1, idx2); // f100
+						ig_cl_ptr->grids[i].m_data[base + 2] = tmp_grids[i].m_data(idx0, idx1+1, idx2); // f010
+						ig_cl_ptr->grids[i].m_data[base + 3] = tmp_grids[i].m_data(idx0+1, idx1+1, idx2); // f110
+						ig_cl_ptr->grids[i].m_data[base + 4] = tmp_grids[i].m_data(idx0, idx1, idx2+1); // f001
+						ig_cl_ptr->grids[i].m_data[base + 5] = tmp_grids[i].m_data(idx0+1, idx1, idx2+1); // f101
+						ig_cl_ptr->grids[i].m_data[base + 6] = tmp_grids[i].m_data(idx0, idx1+1, idx2+1); // f011
+						ig_cl_ptr->grids[i].m_data[base + 7] = tmp_grids[i].m_data(idx0+1, idx1+1, idx2+1); // f111
+					}
 
 		}
 		else {

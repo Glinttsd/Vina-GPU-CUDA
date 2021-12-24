@@ -136,25 +136,25 @@ __device__ float g_evaluate(		grid_cl*	g,
 	const int y1 = y0 + 1;
 	const int z1 = z0 + 1;
 
-	const float f000 = access_m_data(g->m_data, m_i, m_j, x0, y0, z0);
-	const float f100 = access_m_data(g->m_data, m_i, m_j, x1, y0, z0);
-	const float f010 = access_m_data(g->m_data, m_i, m_j, x0, y1, z0);
-	const float f110 = access_m_data(g->m_data, m_i, m_j, x1, y1, z0);
-	const float f001 = access_m_data(g->m_data, m_i, m_j, x0, y0, z1);
-	const float f101 = access_m_data(g->m_data, m_i, m_j, x1, y0, z1);
-	const float f011 = access_m_data(g->m_data, m_i, m_j, x0, y1, z1);
-	const float f111 = access_m_data(g->m_data, m_i, m_j, x1, y1, z1);
+	//const float f000 = access_m_data(g->m_data, m_i, m_j, x0, y0, z0);
+	//const float f100 = access_m_data(g->m_data, m_i, m_j, x1, y0, z0);
+	//const float f010 = access_m_data(g->m_data, m_i, m_j, x0, y1, z0);
+	//const float f110 = access_m_data(g->m_data, m_i, m_j, x1, y1, z0);
+	//const float f001 = access_m_data(g->m_data, m_i, m_j, x0, y0, z1);
+	//const float f101 = access_m_data(g->m_data, m_i, m_j, x1, y0, z1);
+	//const float f011 = access_m_data(g->m_data, m_i, m_j, x0, y1, z1);
+	//const float f111 = access_m_data(g->m_data, m_i, m_j, x1, y1, z1);
 
-	//int base = x0 + m_i * (y0 + m_j * z0);
+	int base = (x0 + m_i * (y0 + m_j * z0)) * 8;
 
-	//const float f000 = g->m_data[base];
-	//const float f100 = g->m_data[base + 1];
-	//const float f010 = g->m_data[base + 2];
-	//const float f110 = g->m_data[base + 3];
-	//const float f001 = g->m_data[base + 4];
-	//const float f101 = g->m_data[base + 5];
-	//const float f011 = g->m_data[base + 6];
-	//const float f111 = g->m_data[base + 7];
+	const float f000 = g->m_data[base];
+	const float f100 = g->m_data[base + 1];
+	const float f010 = g->m_data[base + 2];
+	const float f110 = g->m_data[base + 3];
+	const float f001 = g->m_data[base + 4];
+	const float f101 = g->m_data[base + 5];
+	const float f011 = g->m_data[base + 6];
+	const float f111 = g->m_data[base + 7];
 
 	const float x = s[0];
 	const float y = s[1];
