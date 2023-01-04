@@ -210,7 +210,7 @@ void do_search(model& m, const boost::optional<model>& ref, const scoring_functi
 		done(verbosity, log);
 	}
 	else {
-		seed = -226066464; printf("seed is fixed to -226066464!\n");
+		// seed = -226066464; printf("seed is fixed to -226066464!\n");
 		rng generator(static_cast<rng::result_type>(seed));
 		log << "Using random seed: " << seed;
 		log.endl();
@@ -444,23 +444,24 @@ your problem report:\n\
 Thank you!\n";
 
 	const std::string cite_message = "\
-#################################################################\n\
-# If you used Vina-GPU in your work, please cite:               #\n\
-#                                                               #\n\
-#Shidi, Tang, Chen Ruiqi, Lin Mengru, Lin Qingde,               #\n\
-#Zhu Yanxiang, Wu Jiansheng, Hu Haifeng, and Ling Ming.         #\n\
-#Accelerating AutoDock VINA with GPUs. ChemRxiv (2021).Print.   #\n\
-#                                                               #\n\
-# And also the origin AutoDock Vina paper:                      #\n\
-# O. Trott, A. J. Olson,                                        #\n\
-# AutoDock Vina: improving the speed and accuracy of docking    #\n\
-# with a new scoring function, efficient optimization and       #\n\
-# multithreading, Journal of Computational Chemistry 31 (2010)  #\n\
-# 455-461                                                       #\n\
-#                                                               #\n\
-# DOI 10.1002/jcc.21334                                         #\n\
-#                                                               #\n\
-#################################################################\n";
+###################################################################\n\
+# If you used Vina-GPU in your work, please cite:                 #\n\
+#                                                                 #\n\
+# Tang, S.; Chen, R.; Lin, M.; Lin, Q.; Zhu, Y.; Ding, J.; Hu, H.;#\n\
+# Ling, M.; Wu, J. Accelerating AutoDock Vina with GPUs.          #\n\
+# Molecules 2022, 27, 3041.                                       #\n\
+# https://doi.org/10.3390/molecules27093041                       #\n\
+#                                                                 #\n\
+# And also the origin AutoDock Vina paper:                        #\n\
+# O. Trott, A. J. Olson,                                          #\n\
+# AutoDock Vina: improving the speed and accuracy of docking      #\n\
+# with a new scoring function, efficient optimization and         #\n\
+# multithreading, Journal of Computational Chemistry 31 (2010)    #\n\
+# 455-461                                                         #\n\
+#                                                                 #\n\
+# DOI 10.1002/jcc.21334                                           #\n\
+#                                                                 #\n\
+###################################################################\n";
 
 	try {
 		std::string rigid_name, ligand_name, flex_name, config_name, out_name, log_name;

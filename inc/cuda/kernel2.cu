@@ -5,7 +5,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <cmath>
-
+// #include "kernel2.cuh"
 
 __global__ void cuda_print() {
 	printf("hello cuda !");
@@ -142,7 +142,7 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 	__shared__ change_cl g;
 	g.lig_torsion_size = tmp.lig_torsion_size;
 
-	//__shared__ output_type_cl best_out;
+	__shared__ output_type_cl best_out;
 	__shared__ output_type_cl candidate;
 	//printf("epsilon_fl = %f", epsilon_fl);
 	//printf("\nid=%d, coords=[%d]", i, ig_cl_gpu->grids[i].m_range[0]);
@@ -151,8 +151,9 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 	//printf("\nid = %d, pos[0] = %f, pos[1] = %f, pos[2] = %f", i, tmp.position[0], tmp.position[1], tmp.position[2]);
 	//printf("\nid = %d, random = %d", i, rand_maps_gpu->int_map[i]);
 	
-	/*
+
 	for (int step = 0; step < search_depth; step++) {
+		// printf("\nstep = %d", step);
 		candidate = tmp;
 		int map_index = (step + id * search_depth) % MAX_NUM_OF_RANDOM_MAP;
 		//if(threadNumInBlock==0) print_output(&candidate);
@@ -228,66 +229,7 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 		}
 		
 	}
-	*/
-	
-	candidate = tmp;
-	//printf("\ntmp.e = %f", tmp.e);
-	//candidate.position[0] = 34.505109230386530	;
-	//candidate.position[1] = 110.31985002703141	;
-	//candidate.position[2] = 79.154029232201154	;
-	//candidate.orientation[0] = 0.46376878568582613;
-	//candidate.orientation[1] = 0.60424376935162794;
-	//candidate.orientation[2] = -0.45274059029519592;
-	//candidate.orientation[3] = -0.46350182148767238;
-	//candidate.lig_torsion[0] = 0.25157818331525472	  ;
-	//candidate.lig_torsion[1] = -1.3138306909269508	  ;
-	//candidate.lig_torsion[2] = -0.51761160293233477	  ;
-	//candidate.lig_torsion[3] = 0.71368150277729181	  ;
-	//candidate.lig_torsion[4] = 1.0440066086795625	  ;
-	//candidate.lig_torsion[5] = 2.9470457729446107	  ;
-	//candidate.lig_torsion[6] = -1.7196760509444267	  ;
-	for (int step = 0; step < 10; step++) {
-		//int map_index = (step + id * search_depth) % MAX_NUM_OF_RANDOM_MAP;
-		//mutate_conf_cl(map_index,
-		//	&candidate,
-		//	rand_maps_gpu->int_map,
-		//	rand_maps_gpu->sphere_map,
-		//	rand_maps_gpu->pi_map,
-		//	epsilon_fl,
-		//	mutation_amplitude,
-		//	threadNumInBlock,
-		//	threadsPerBlock
-		//);
-		//__syncthreads();
-		bfgs(&candidate,// shared memory
-			&g,// shared memory
-			m_cl_gpu, // global memory
-			p_cl_gpu,
-			ig_cl_gpu,
-			authentic_v_gpu,
-			epsilon_fl,
-			bfgs_max_steps,
-			&m_coords,   // shared memory
-			&minus_forces, // shared memory
-			threadNumInBlock,
-			threadsPerBlock
-		);
-		if (step == 0 || candidate.e < tmp.e) {
-			tmp = candidate;
-		}
-		else
-			candidate = tmp;
-		//if (threadNumInBlock == 0)printf("\ncandidate.e = %f", candidate.e);
-	}
-	
-	set(&candidate, &m_cl_gpu->ligand.rigid, &m_coords,
-		m_cl_gpu->atoms, m_cl_gpu->m_num_movable_atoms, epsilon_fl);
-	get_heavy_atom_movable_coords(&candidate, m_cl_gpu, &m_coords);
-	
-	// write the best conformation back to CPU
-	results[id] = candidate;
-	//results[id] = best_out;
-	//if(threadNumInBlock==0)printf("\nFinish!");
+	results[id] = best_out;
 }
 
 
@@ -306,22 +248,16 @@ void kernel2(	float *				rand_molec_struc_vec_gpu,
 				float				epsilon_fl,
 				int					thread
 ) {
-	//int size = 16;
-	size_t global_size[2] = { 512, 32 };
-	size_t local_size[2] = { 16,8 };
-	//dim3 grid_size(4,4);
-	//dim3 block_size(8,8);
+	// size_t global_size[2] = { 512, 32 };
+	// size_t local_size[2] = { 16,8 };
 	dim3 block_size(8, 8);
-	//dim3 grid_size(1, 1);
-	dim3 grid_size(64, 128);
-	//dim3 grid_size(32, 64);
-	//dim3 block_size(128, 1);
+	dim3 grid_size(GRID_DIM1, GRID_DIM2);
 	int tmp = thread / 32;
 
 	cudaEvent_t time1, time2;
-	cudaEventCreate(&time1);	cudaEventCreate(&time2);//´´½¨ÊÂ¼þ
+	cudaEventCreate(&time1);	cudaEventCreate(&time2);//ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
 
-	cudaEventRecord(time1, 0);//¼ÇÂ¼Ê±¼ä´Á
+	cudaEventRecord(time1, 0);//ï¿½ï¿½Â¼Ê±ï¿½ï¿½ï¿½
 
 	monte_carlo << <grid_size, block_size >>>(rand_molec_struc_vec_gpu, rand_maps_gpu, m_cl_gpu,
 		p_cl_gpu, ig_cl_gpu, results, search_depth, epsilon_fl, thread);
@@ -337,12 +273,12 @@ void kernel2(	float *				rand_molec_struc_vec_gpu,
 	}
 	cudaEventRecord(time2, 0);
 
-	cudaEventSynchronize(time1);	cudaEventSynchronize(time2);//µÈ´ýÊ±¼ä´ÁÇ°µÄÏß³ÌÍ¬²½
+	cudaEventSynchronize(time1);	cudaEventSynchronize(time2);//ï¿½È´ï¿½Ê±ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ß³ï¿½Í¬ï¿½ï¿½
 
-	cudaEventElapsedTime(&kernalExecutionTime, time1, time2);//¼ÆËãÊ±¼ä²î
-	printf("time for GPU is %f s \n", kernalExecutionTime/1000);//Êä³ö
+	cudaEventElapsedTime(&kernalExecutionTime, time1, time2);//ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
+	printf("\nElapsed time for GPU calculation: %0.3f s \n", kernalExecutionTime/1000);//ï¿½ï¿½ï¿½
 
-	cudaEventDestroy(time1);	cudaEventDestroy(time2);//Ïú»ÙÊÂ¼þ
+	cudaEventDestroy(time1);	cudaEventDestroy(time2);//ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
 
 
 	//getchar();

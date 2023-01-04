@@ -1,5 +1,6 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include <stdio.h>
 //__device__ void matrix_init(matrix* m, int dim, float fill_data);
 //__device__ void mat_init(matrix* m, float fill_data);
 //__device__ void matrix_set_diagonal(matrix* m, float fill_data);
