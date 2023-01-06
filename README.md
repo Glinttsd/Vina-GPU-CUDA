@@ -4,6 +4,8 @@ A CUDA implementation of Vina-GPU
 Note: this is a demo of CUDA Vina-GPU, cuda related files are in `./inc/cuda` dir
 
 ## Compilation on Linux
+**Environment**: Ubuntu 18.04.6 LTS / nvcc version: 11.7 / NVIDIA-SMI 460.91.03 Driver Version: 460.91.03 CUDA Version: 11.2
+
 **Note**: At least 8M stack size is needed. To change the stack size, use `ulimit -s 8192`.
 1. install [boost library](https://www.boost.org/) (current version is 1.77.0)
 2. install [CUDA Toolkit](https://developer.nvidia.com/zh-cn/cuda-toolkit) (current version is 11.5) if you are using NVIDIA GPU cards
