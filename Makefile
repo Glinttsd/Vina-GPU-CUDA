@@ -1,6 +1,5 @@
 # Need to be modified according to different users
 BOOST_LIB_PATH=../boost_1_77_0
-OPENCL_LIB_PATH=/usr/local/cuda
 GRID_DIM=-DGRID_DIM1=64 -DGRID_DIM2=128
 NVCC_COMPILER=/usr/local/cuda-11.0/bin/nvcc
 # Should not be modified

@@ -21,12 +21,6 @@ __device__ void print_output(output_type_cl* a) {
 }
 
 __device__ void output_type_cl_init(output_type_cl* out, float* ptr,const int threadNumInBlock,const int threadsPerBlock) {
-	//for (int i = 0; i < 3; i++)out->position[i] = ptr[i];
-	//for (int i = 0; i < 4; i++)out->orientation[i] = ptr[i + 3];
-	//for (int i = 0; i < MAX_NUM_OF_LIG_TORSION; i++)out->lig_torsion[i] = ptr[i + 3 + 4];
-	//for (int i = 0; i < MAX_NUM_OF_FLEX_TORSION; i++)out->flex_torsion[i] = ptr[i + 3 + 4 + MAX_NUM_OF_LIG_TORSION];
-	//out->lig_torsion_size = ptr[3 + 4 + MAX_NUM_OF_LIG_TORSION + MAX_NUM_OF_FLEX_TORSION]; 
-	//did not assign coords and e
 	for (int i = threadNumInBlock;
 		i < 3 + 4 + MAX_NUM_OF_LIG_TORSION + MAX_NUM_OF_FLEX_TORSION + 1;
 		i = i + threadsPerBlock
@@ -119,12 +113,6 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 
 	m_cl* m_cl_gpu = &m_cl_global[id];
 
-	//if (id == 0) {
-	//	m_cl_gpu->m_coords.coords[0][0] = 111;
-	//	//m_cl_global[blockNumInGrid].m_coords.coords[0][0] = 111;
-	//	printf("\n coords = %f", m_cl_global[blockNumInGrid].m_coords.coords[0][0]);
-	//}
-
 	//__syncthreads();
 
 	__shared__ m_coords_cl m_coords;
@@ -136,22 +124,13 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 	__shared__ output_type_cl tmp;
 	float* ptr = rand_molec_struc_vec_gpu + id * (SIZE_OF_MOLEC_STRUC / sizeof(float));
 	output_type_cl_init(&tmp, rand_molec_struc_vec_gpu + id * (SIZE_OF_MOLEC_STRUC / sizeof(float)), threadNumInBlock, threadsPerBlock);
-	//printf("\nthreadsPerBlock = %d", threadsPerBlock);
 	__syncthreads();
-	//if (threadNumInBlock == 0)printf("\nlig_torsion_size = %f", tmp.lig_torsion_size);
 	__shared__ change_cl g;
 	g.lig_torsion_size = tmp.lig_torsion_size;
 
 	__shared__ output_type_cl best_out;
 	__shared__ output_type_cl candidate;
-	//printf("epsilon_fl = %f", epsilon_fl);
-	//printf("\nid=%d, coords=[%d]", i, ig_cl_gpu->grids[i].m_range[0]);
-	//printf("\nid=%d, coords=[%f]", i, p_cl_gpu->m_data[0].smooth[i][0]);
-	//print_output(&tmp);
-	//printf("\nid = %d, pos[0] = %f, pos[1] = %f, pos[2] = %f", i, tmp.position[0], tmp.position[1], tmp.position[2]);
-	//printf("\nid = %d, random = %d", i, rand_maps_gpu->int_map[i]);
 	
-
 	for (int step = 0; step < search_depth; step++) {
 		// printf("\nstep = %d", step);
 		candidate = tmp;
@@ -172,13 +151,7 @@ __global__ void monte_carlo (	float *				rand_molec_struc_vec_gpu,
 						threadNumInBlock,
 						threadsPerBlock
 			);
-		//if (threadNumInBlock == 0) print_output(&candidate);
 		__syncthreads();
-		//if (threadNumInBlock == 0) {
-		//	printf("\nHere!");
-		//	printf("\n thread %d, tmp = %f", threadNumInBlock, tmp.position[0]);
-		//}
-		//int a = 0;
 		bfgs(	&candidate,// shared memory
 				&g,// shared memory
 				m_cl_gpu, // global memory

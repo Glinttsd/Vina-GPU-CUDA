@@ -590,18 +590,6 @@ __device__  float eval_interacting_pairs_deriv(			p_cl*			p_cl_gpu,
 			float force[3] = { r[0] * tmp[1], r[1] * tmp[1] ,r[2] * tmp[1] };
 			curl(&tmp[0], force, v, epsilon_fl);
 			e[i] = tmp[0];
-			//while (minus_forces->lock[ip[1]] == 0) {
-			//	atomicExch(&minus_forces->lock[ip[1]], 1);
-			//	for (int j = 0; j < 3; j++)minus_forces->coords[ip[1]][j] -= force[j];
-			//	atomicExch(&minus_forces->lock[ip[1]], 0);
-			//	break;
-			//}
-			//while (minus_forces->lock[ip[2]] == 0) {
-			//	atomicExch(&minus_forces->lock[ip[2]], 1);
-			//	for (int j = 0; j < 3; j++)minus_forces->coords[ip[2]][j] += force[j];
-			//	atomicExch(&minus_forces->lock[ip[2]], 0);
-			//	break;
-			//}
 			for (int j = 0; j < 3; j++) AtomicAdd(&minus_forces->coords[ip[1]][j], -force[j]);
 			for (int j = 0; j < 3; j++) AtomicAdd(&minus_forces->coords[ip[2]][j], force[j]);
 
@@ -644,28 +632,6 @@ __device__  float eval_interacting_pairs_deriv(			p_cl*			p_cl_gpu,
 		//if (threadNumInBlock == 0)
 		return e[0];
 	}
-
-
-
-	//float e = 0;
-	//for (int i = 0; i < pairs->num_pairs; i++) {
-	//	const int ip[3] = { pairs->type_pair_index[i], pairs->a[i] ,pairs->b[i] };
-	//	float coords_b[3] = { m_coords->coords[ip[2]][0], m_coords->coords[ip[2]][1], m_coords->coords[ip[2]][2] };
-	//	float coords_a[3] = { m_coords->coords[ip[1]][0], m_coords->coords[ip[1]][1], m_coords->coords[ip[1]][2] };
-	//	float r[3] = { coords_b[0] - coords_a[0], coords_b[1] - coords_a[1] ,coords_b[2] - coords_a[2] };
-	//	float r2 = r[0] * r[0] + r[1] * r[1] + r[2] * r[2];
-
-	//	if (r2 < p_cl_gpu->m_cutoff_sqr) {
-	//		float tmp[2];
-	//		p_eval_deriv(tmp, ip[0], r2, p_cl_gpu, epsilon_fl);
-	//		float force[3] = { r[0] * tmp[1], r[1] * tmp[1] ,r[2] * tmp[1] };
-	//		curl(&tmp[0], force, v, epsilon_fl);
-	//		e += tmp[0];
-	//		for (int j = 0; j < 3; j++)minus_forces->coords[ip[1]][j] -= force[j];
-	//		for (int j = 0; j < 3; j++)minus_forces->coords[ip[2]][j] += force[j];
-	//	}
-	//}
-	//return e;
 }
 
 __device__ inline void product(float* res, const float* a, const float* b) {
@@ -713,27 +679,6 @@ __device__ void POT_deriv(	const		m_minus_forces* minus_forces,
 		}
 	}
 	__syncthreads();
-
-
-	/*for (int i = 0; i < num_rigid; i++) {
-		int begin = lig_rigid_gpu->atom_range[i][0];
-		int end = lig_rigid_gpu->atom_range[i][1];
-		for (int k = 0; k < 3; k++)position_derivative_tmp[i][k] = 0;
-		for (int k = 0; k < 3; k++)orientation_derivative_tmp[i][k] = 0;
-		for (int j = begin; j < end; j++) {
-			for (int k = 0; k < 3; k++)position_derivative_tmp[i][k] += minus_forces->coords[j][k];
-
-			float tmp1[3] = { m_coords->coords[j][0] - lig_rigid_gpu->origin[i][0],
-								m_coords->coords[j][1] - lig_rigid_gpu->origin[i][1],
-								m_coords->coords[j][2] - lig_rigid_gpu->origin[i][2] };
-			float tmp2[3] = { minus_forces->coords[j][0],
-								minus_forces->coords[j][1],
-								minus_forces->coords[j][2] };
-			float tmp3[3];
-			product(tmp3, tmp1, tmp2);
-			for (int k = 0; k < 3; k++)orientation_derivative_tmp[i][k] += tmp3[k];
-		}
-	}*/
 
 	// position_derivative 
 	for (int i = num_rigid - 1; i >= 0; i--) {// from bottom to top
@@ -862,13 +807,6 @@ __device__ void minus_mat_vec_product(	const		matrix*		h,
 	}
 
 	__syncthreads();
-	//for (int i = 0; i < n; i++) {
-	//	float sum = 0;
-	//	for (int j = 0; j < n; j++) {
-	//		sum += h->data[index_permissive(h, i, j)] * find_change_index_read(in, j);
-	//	}
-	//	find_change_index_write(out, i, -sum);
-	//}
 }
 
 
@@ -966,22 +904,6 @@ __device__  bool bfgs_update(			matrix*		h,
 			h->data[i + j * (j + 1) / 2] += tmp;
 		}
 	}
-
-	//for (int i = threadNumInBlock;
-	//	i < n;
-	//	i = i + threadsPerBlock
-	//	)
-	//{
-	//	for (int j = i; j < n; j++) {
-	//		float tmp = alpha * r * (find_change_index_read(&minus_hy, i) * find_change_index_read(p, j)
-	//			+ find_change_index_read(&minus_hy, j) * find_change_index_read(p, i)) +
-	//			+alpha * alpha * (r * r * yhy + r) * find_change_index_read(p, i) * find_change_index_read(p, j);
-
-	//		AtomicAdd(&h->data[i + j * (j + 1) / 2], tmp);
-	//		//h->data[i + j * (j + 1) / 2] += tmp;
-	//	}
-	//}
-
 	//__syncthreads();
 	return true;
 }
@@ -1081,10 +1003,6 @@ __device__  void bfgs(			output_type_cl* x,
 		}
 		__syncthreads();
 
-		/*for (int i = 0; i < n; i++) {
-			float tmp = find_change_index_read(&y, i) - find_change_index_read(g, i);
-			find_change_index_write(&y, i, tmp);
-		}*/
 		f0 = f1;
 		//output_type_cl_init_with_output(x, &x_new);
 		*x = x_new;
@@ -1097,27 +1015,7 @@ __device__  void bfgs(			output_type_cl* x,
 				matrix_set_diagonal(&h, alpha * scalar_product(&y, &p, n) / yy, threadNumInBlock, threadsPerBlock);
 			}
 		}
-
-		//if (threadNumInBlock == 0)printf("\n bfgs step %d, after line search, f1 = %f", step, f1);
-		//if (threadNumInBlock == 0) {
-		//	printf("\n y");
-		//	print_change(&y,y.lig_torsion_size);
-		//	printf("\n p");
-		//	print_change(&p,p.lig_torsion_size);
-		//}
 		bool h_updated = bfgs_update(&h, &p, &y, alpha, epsilon_fl, threadNumInBlock, threadsPerBlock);
-		//if (threadNumInBlock == 0) {
-		//	if (h_updated == true) {
-		//		printf("\nUpdate!");
-		//		for (int j = 0; j < 50; j++) {
-		//			printf("\nh[%d] = %f", j, h.data[j]);
-		//		}
-		//	}
-		//	else
-		//	{
-		//		printf("\nNo update!");
-		//	}
-		//}
 	}
 
 	if (!(f0 <= f_orig)) {
